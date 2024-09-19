@@ -68,6 +68,8 @@ class App extends React.Component {
 
     // async fetchWeather() {
     fetchWeather = async () => {
+        if(this.state.location.length < 2) return this.setState({weather: {}});
+
         try {
             this.setState({
                 // ...this.state,
@@ -100,7 +102,7 @@ class App extends React.Component {
             const weatherData = await weatherRes.json();
             this.setState({weather: weatherData.daily});
         } catch (err) {
-            console.err(err);
+            console.error(err);
         } finally {
             this.setState({
                 isLoading: false
@@ -116,6 +118,19 @@ class App extends React.Component {
         });
     };
 
+    componentDidMount() {
+        // this.fetchWeather();
+        this.setState({location: localStorage.getItem('location') || ""})
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        if(this.state.location !== prevState.location) {
+            this.fetchWeather();
+
+            localStorage.setItem('location', this.state.location);
+        }
+    }
+
     render() {
         return <div className="app">
             <h1>Classy Weather</h1>
@@ -125,7 +140,7 @@ class App extends React.Component {
             }
             />
 
-            <button onClick={this.fetchWeather}>Get weather</button>
+            {/* <button onClick={this.fetchWeather}>Get weather</button> */}
 
             {this.state.isLoading && <p className="loader">Loading ...</p>}
 
@@ -155,6 +170,13 @@ class Input extends React.Component {
 
 
 class Weather extends React.Component {
+    componentWillUnmount() {
+        console.log('Weather will unmount');
+        
+    }
+
+
+
     render() {
         const {
             temperature_2m_max: max, 
